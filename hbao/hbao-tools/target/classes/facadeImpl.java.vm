@@ -1,0 +1,143 @@
+package ${package.facade};
+
+import ${package.Entity}.${entity};
+import ${package.Entity}.${dto};
+import ${package.ServiceImpl}.${table.serviceImplName};
+import ${package.Service}.${table.serviceName};
+import com.weimob.saas.crm.common.Constant;
+import com.alibaba.dubbo.config.annotation.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+
+#set($serviceImpl=${table.serviceImplName.substring(0,1).toLowerCase()}+${table.serviceImplName.substring(1)})
+#set($entityName=${entity.substring(0,1).toLowerCase()}+${entity.substring(1)})
+/**
+ * <p>
+ * $!{table.comment} 服务facade类
+ * </p>
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${kotlin})
+open class ${facade} :${superServiceImplClass}<${table.mapperName}, ${entity}>(), ${table.serviceName} {
+
+        }
+#else
+public class ${facade}  implements ${entity}RemoteService {
+    @Autowired
+    private ${table.serviceImplName} ${serviceImpl};
+
+    @Override
+    public ResultAndPage selectPageResponse(PageDto pageDto, ${dto} ${entityName}){
+        try{
+            ${entity} entity=new ${entity}();
+            BeanUtils.copyProperties(${entityName},entity);
+            ResultAndPage result= ${serviceImpl}.selectResultAndPage(pageDto,new EntityWrapper<>(entity),${dto}.class);
+            response.setResponseVo(result);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_SUCCESS.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_SUCCESS.getErrorMsg());
+
+        }catch(BaseException be){
+            response.setReturnCode(be.getErrorCode());
+            response.setReturnMsg(be.getErrorMsg());
+        }catch(Exception e){
+            LogUtils.error(getClass(),"未知异常",e);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_FAIL.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_FAIL.getErrorMsg());
+        }
+        return response;
+
+    }
+
+    @Override
+    public SoaResponse selectByIdResponse(Long id){
+        SoaResponse<${dto}, BaseErrorDto>response=new SoaResponse<>();
+        try{
+            ${entity} result= ${serviceImpl}.selectById(id);
+            if(result!=null){
+                ${dto} dto=new ${dto}();
+                BeanUtils.copyProperties(result,dto);
+                response.setResponseVo(dto);
+            }
+            response.setReturnCode(GlobalResultEnum.GLOBAL_SUCCESS.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_SUCCESS.getErrorMsg());
+        }catch(BaseException be){
+            response.setReturnCode(be.getErrorCode());
+            response.setReturnMsg(be.getErrorMsg());
+        }catch(Exception e){
+            LogUtils.error(getClass(),"未知异常",e);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_FAIL.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_FAIL.getErrorMsg());
+        }
+        return response;
+    }
+
+    @Override
+    public SoaResponse updateByIdResponse(${dto} ${entityName}){
+        SoaResponse<Boolean, BaseErrorDto>response=new SoaResponse<>();
+        try{
+            ${entity} entity=new ${entity}();
+            BeanUtils.copyProperties(${entityName},entity);
+            Boolean result= ${serviceImpl}.updateById(entity);
+            response.setResponseVo(result);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_SUCCESS.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_SUCCESS.getErrorMsg());
+        }catch(BaseException be){
+            response.setReturnCode(be.getErrorCode());
+            response.setReturnMsg(be.getErrorMsg());
+        }catch(Exception e){
+            LogUtils.error(getClass(),"未知异常",e);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_FAIL.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_FAIL.getErrorMsg());
+        }
+        return response;
+
+    }
+
+    @Override
+    public SoaResponse insertResponse(${dto} ${entityName}){
+        SoaResponse<Boolean, BaseErrorDto>response=new SoaResponse<>();
+        try{
+            ${entity} entity=new ${entity}();
+            BeanUtils.copyProperties(${entityName},entity);
+            Boolean result= ${serviceImpl}.insert(entity);
+            response.setResponseVo(result);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_SUCCESS.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_SUCCESS.getErrorMsg());
+        }catch(BaseException be){
+            response.setReturnCode(be.getErrorCode());
+            response.setReturnMsg(be.getErrorMsg());
+        }catch(Exception e){
+            LogUtils.error(getClass(),"未知异常",e);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_FAIL.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_FAIL.getErrorMsg());
+        }
+        return response;
+
+    }
+
+    @Override
+    public SoaResponse deleteByIdResponse(Long id){
+
+        SoaResponse<Boolean, BaseErrorDto>response=new SoaResponse<>();
+        try{
+            Boolean result= ${serviceImpl}.deleteById(id);
+            response.setResponseVo(result);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_SUCCESS.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_SUCCESS.getErrorMsg());
+        }catch(BaseException be){
+            response.setReturnCode(be.getErrorCode());
+            response.setReturnMsg(be.getErrorMsg());
+        }catch(Exception e){
+            LogUtils.error(getClass(),"未知异常",e);
+            response.setReturnCode(GlobalResultEnum.GLOBAL_FAIL.getErrorCode());
+            response.setReturnMsg(GlobalResultEnum.GLOBAL_FAIL.getErrorMsg());
+        }
+        return response;
+
+    }
+
+
+}
+#end

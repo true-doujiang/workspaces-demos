@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhh.hbao.orm.mapper.UserCouponMapper">
+
+        <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.yhh.hbao.orm.model.UserCoupon">
+        <id column="id" property="id"/>
+        <result column="coupon_id" property="couponId"/>
+        <result column="receive_id" property="receiveId"/>
+        <result column="campaign_id" property="campaignId"/>
+        <result column="user_id" property="userId"/>
+        <result column="get_time" property="getTime"/>
+        <result column="get_type" property="getType"/>
+        <result column="coupon_code" property="couponCode"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, coupon_id AS couponId, receive_id AS receiveId, campaign_id as campaignId,user_id AS userId, get_time AS getTime, get_type AS getType
+    </sql>
+
+    <!-- 查询用户所有已获取卡券无门槛的活动 -->
+    <select id="selectIsGetLimit" resultType="com.yhh.hbao.api.transfer.CampaignDto">
+            SELECT
+              t2.id,
+              t2.name,
+              t2.status,
+              t2.valid_begin_time    AS validBeginTime,
+              t2.valid_end_time      AS validEndTime,
+              t2.receive_type        AS receiveType,
+              t2.user_day_count      AS userDayCount,
+              t2.user_all_count      AS userAllCount,
+              t2.coupon_type         AS couponType,
+              t2.price,
+              t2.gift_name           AS giftName,
+              t2.level,
+              t2.broken_count        AS brokenCount,
+              t2.valid_time_type     AS validTimeType,
+              t2.valid_hour          AS validHour,
+              t2.begin_time          AS beginTime,
+              t2.end_time            AS endTime,
+              t2.issue_count         AS issueCount,
+              t2.weight,
+              t2.use_rules           AS useRules,
+              t2.create_time         AS createTime,
+              t2.update_time         AS updateTime,
+              t2.consumer_limit_type AS consumerLimitType,
+              t2.consumer_count      AS consumerCount
+            FROM user_coupon t1
+              LEFT JOIN campaign t2 ON t1.campaign_id = t2.id
+            WHERE t1.user_id=#{userId} and t2.consumer_limit_type=1
+
+    </select>
+
+    <!--更新过期的用户兑换卡券状态-->
+    <update id="updateUserCouponStatusComplete" parameterType="java.util.List">
+        update user_coupon set status=3 where 1=1 and id in
+        <foreach collection="list" item="item"  open="(" close=")" separator=",">
+            #{item.id}
+        </foreach>
+    </update>
+
+<!-- //这里不要concat 改成   like '%#{nickName}%'-->
+    <select id="selectListByParam" resultType="com.yhh.hbao.api.transfer.UserCouponDto">
+        select t1.id,t2.city,t2.head_icon as headicon,t2.mobile ,t2.nick_name as nickname,t1.get_time as gettime,t1.status,
+        t3.price as price , t1.coupon_code as couponcode,t3.coupon_type as coupontype
+        from user_coupon t1
+        left join campaign t3 on t1.campaign_id = t3.id
+        left join user_info t2 on t1.user_id = t2.id
+        <where>
+            <if test="city != null " >
+                and t1.city = #{city}
+            </if>
+            <if test="status != null " >
+                and t1.status = #{status}
+            </if>
+            <if test="couponType != null " >
+                and t3.coupon_type = #{couponType}
+            </if>
+            <if test="nickName != null ">
+
+                and t2.nick_name LIKE CONCAT('%', #{nickName}, '%')
+            </if>
+        </where>
+        <if test="mobile != null ">
+            union
+            select t1.id,t2.city,t2.head_icon as headicon,t2.mobile ,t2.nick_name as nickname,t1.get_time as gettime,t1.status,
+            t3.price as price , t1.coupon_code as couponcode,t3.coupon_type as coupontype
+            from user_coupon t1
+            left join campaign t3 on t1.campaign_id = t3.id
+            left join user_info t2 on t1.user_id = t2.id
+            <where>
+                <if test="city != null " >
+                    and t1.city = #{city}
+                </if>
+                <if test="status != null " >
+                    and t1.status = #{status}
+                </if>
+                <if test="couponType != null " >
+                    and t3.coupon_type = #{couponType}
+                </if>
+                <if test="mobile != null">
+                    and t2.mobile LIKE CONCAT('%', #{mobile}, '%')
+                </if>
+            </where>
+        </if>
+    </select>
+
+    <select id="selectExtById" resultType="com.yhh.hbao.api.transfer.UserCouponDto">
+        SELECT
+        t1.get_time as getTime,t1.coupon_id as couponId ,t2.coupon_type as couponType ,
+        t2.price ,t2.valid_hour as validHour,t2.name as campaignName,t3.coupon_code as couponCode
+        FROM
+        user_coupon t1
+        LEFT JOIN campaign t2 ON t1.campaign_id = t2.id
+        left join coupon_info t3 on t1.coupon_id = t3.id
+        where t1.id = #{id}
+    </select>
+
+    <!-- 更新用户优惠券的状态为 2:已使用 -->
+    <update id="updateUserCouponStatusUserd" parameterType="java.util.List">
+        UPDATE user_coupon
+          SET status = 2
+        WHERE coupon_code IN
+        <foreach collection="list" item="item"  open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="selectCouponIdByReceiveLogId" resultType="java.lang.Long">
+        SELECT
+          coupon_id
+        FROM
+        user_coupon t1
+        where t1.receive_id = #{receiveId}
+    </select>
+
+
+</mapper>

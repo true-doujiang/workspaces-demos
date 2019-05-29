@@ -1,0 +1,12 @@
+com\yhh\hbao\orm\mapper\CouponInfoMapper.class
+com\yhh\hbao\orm\mapper\UserCouponMapper.class
+com\yhh\hbao\orm\model\BrokenLogs.class
+com\yhh\hbao\orm\model\UserCoupon.class
+com\yhh\hbao\orm\model\UserInfo.class
+com\yhh\hbao\orm\mapper\BrokenLogsMapper.class
+com\yhh\hbao\orm\mapper\CampaignMapper.class
+com\yhh\hbao\orm\mapper\ReceiveLogsMapper.class
+com\yhh\hbao\orm\mapper\UserInfoMapper.class
+com\yhh\hbao\orm\model\CouponInfo.class
+com\yhh\hbao\orm\model\Campaign.class
+com\yhh\hbao\orm\model\ReceiveLogs.class

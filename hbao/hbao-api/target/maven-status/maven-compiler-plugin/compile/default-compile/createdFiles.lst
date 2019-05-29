@@ -1,0 +1,14 @@
+com\yhh\hbao\api\service\CouponInfoService.class
+com\yhh\hbao\api\service\UserInfoService.class
+com\yhh\hbao\api\service\UserCouponService.class
+com\yhh\hbao\api\transfer\UserInfoDto.class
+com\yhh\hbao\api\service\CampaignService.class
+com\yhh\hbao\api\service\ReceiveLogsService.class
+com\yhh\hbao\api\transfer\CouponInfoDto.class
+com\yhh\hbao\api\transfer\BrokenLogsDto.class
+com\yhh\hbao\api\transfer\CampaignDto.class
+com\yhh\hbao\api\transfer\UserCouponDto.class
+com\yhh\hbao\api\transfer\ReceiveLogsDtoRes.class
+com\yhh\hbao\api\service\BrokenLogsService.class
+com\yhh\hbao\api\transfer\BaseDto.class
+com\yhh\hbao\api\transfer\ReceiveLogsDto.class

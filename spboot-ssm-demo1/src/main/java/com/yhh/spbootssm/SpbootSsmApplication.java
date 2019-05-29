@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 //@EnableTransactionManagement//开启事务管理
-//@ComponentScan//(basePackages = "com.yhh.spbootssm")
 //@PropertySource(value = { "classpath:application.properties" }, ignoreResourceNotFound = true)
 @MapperScan(basePackages = "com.yhh.spbootssm.mapper")
 @SpringBootApplication

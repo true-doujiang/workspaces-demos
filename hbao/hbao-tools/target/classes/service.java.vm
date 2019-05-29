@@ -1,0 +1,50 @@
+package ${package.Service};
+
+import ${package.Entity}.${dto};
+import com.yhh.hbao.common.model.PageDto;
+import com.baomidou.mybatisplus.plugins.Page;
+
+#set($entityName=${entity.substring(0,1).toLowerCase()}+${entity.substring(1)})
+/**
+ * <p>
+ * $!{table.comment} Interface类
+ * </p>
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${kotlin})
+interface ${table.serviceName} :${superServiceClass}<${entity}>
+#else
+public interface ${table.serviceName}{
+
+    /**
+     * 分页查询$!{table.comment}
+     * @return
+     */
+    Page<${dto}> selectPageResponse(PageDto page, ${dto} ${entityName});
+
+    /**
+     * 根据ID查询$!{table.comment}
+     * @return
+     */
+    ${dto} selectByIdResponse(Long id);
+
+    /**
+     * 修改$!{table.comment}
+     * @return
+     */
+    Integer updateByIdResponse(${dto} ${entityName});
+
+    /**
+     * 保存$!{table.comment}
+     * @return
+     */
+    ${dto} insertResponse(${dto} ${entityName});
+
+    /**
+     * 删除$!{table.comment}
+     * @return
+     */
+    Integer deleteByIdResponse(Long id);
+}
+#end

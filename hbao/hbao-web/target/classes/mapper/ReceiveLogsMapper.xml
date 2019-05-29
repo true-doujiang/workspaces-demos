@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhh.hbao.orm.mapper.ReceiveLogsMapper">
+
+        <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.yhh.hbao.orm.model.ReceiveLogs">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="campaign_id" property="campaignId"/>
+        <result column="consumer_limit_type" property="consumerLimitType"/>
+        <result column="get_time" property="getTime"/>
+        <result column="invalid_time" property="invalidTime"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id AS userId, campaign_id AS campaignId,consumer_limit_type as consumerLimitType, get_time AS getTime,invalid_time as invalidTime,status as status create_time AS createTime, update_time AS updateTime
+    </sql>
+
+    <select id="selectListByParam" resultType="com.yhh.hbao.api.transfer.ReceiveLogsDto" parameterType="com.yhh.hbao.api.transfer.ReceiveLogsDto">
+        SELECT
+            t1.id,t2.city,t2.head_icon as headicon,t2.mobile ,t2.nick_name as nickname,t1.get_time as gettime,t1.status,
+            t3.price,t3.coupon_type as couponType,t1.create_time as createTime ,t3.name  as campaignName
+        FROM
+            receive_logs t1
+            LEFT JOIN user_info t2 ON t1.user_id = t2.id
+            left join campaign t3 on t1.campaign_id = t3.id
+        <where>
+            <if test="city != null " >
+                and t2.city = #{city}
+            </if>
+            <if test="status != null " >
+                and t1.status = #{status}
+            </if>
+            <if test="couponType != null " >
+                and t3.coupon_type = #{couponType}
+            </if>
+            <if test="nickName != null ">
+                and t2.nick_name LIKE CONCAT('%', #{nickName}, '%')
+            </if>
+        </where>
+        <if test="mobile != null ">
+            union
+            SELECT
+            t1.id,t2.city,t2.head_icon as headicon,t2.mobile ,t2.nick_name as nickname,t1.get_time as gettime,t1.status,
+            t3.price,t3.coupon_type as couponType,t1.create_time as createTime ,t3.name  as campaignName
+            FROM
+            receive_logs t1
+            LEFT JOIN user_info t2 ON t1.user_id = t2.id
+            left join campaign t3 on t1.campaign_id = t3.id
+            <where>
+                <if test="city != null " >
+                    and t2.city = #{city}
+                </if>
+                <if test="status != null " >
+                    and t1.status = #{status}
+                </if>
+                <if test="couponType != null " >
+                    and t3.coupon_type = #{couponType}
+                </if>
+                <if test="mobile != null">
+                    and t2.mobile LIKE CONCAT('%', #{mobile}, '%')
+                </if>
+            </where>
+        </if>
+        order by createTime desc
+        limit #{page} , #{pageSize}
+    </select>
+
+    <select id="selectExtById" resultType="com.yhh.hbao.api.transfer.ReceiveLogsDto">
+        SELECT
+        t1.id,t1.get_time as getTime ,t2.coupon_type as couponType ,t2.price ,t2.valid_hour as validHour,
+        t1.status,t2.name as campaignName
+        FROM
+        receive_logs t1
+        LEFT JOIN campaign t2 ON t1.campaign_id = t2.id
+        where t1.id = #{id}
+    </select>
+
+    <!--更新过期红包的状态-->
+    <update id="updateReceiveLogsStatusComplete" parameterType="java.util.List">
+        update receive_logs set status=3 where 1=1 and id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+          #{item.id}
+        </foreach>
+    </update>
+
+    <!--返回已兑换用户数量-->
+    <select id="statisticsConvertCount" resultType="java.lang.Long">
+       SELECT count(1) FROM receive_logs WHERE status = 3
+    </select>
+
+    <!--返回部分已兑换用户的名词-->
+    <select id="statisticsConvertPartName" resultType="java.lang.String">
+        SELECT DISTINCT (nick_name) FROM receive_logs LEFT JOIN user_info ON receive_logs.user_id = user_info.id WHERE receive_logs.status = 3 AND nick_name IS NOT null  order by get_time desc LIMIT #{limit}
+    </select>
+
+</mapper>

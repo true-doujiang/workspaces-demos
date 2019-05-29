@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhh.hbao.orm.mapper.CampaignMapper">
+
+        <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.yhh.hbao.orm.model.Campaign">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="valid_begin_time" property="validBeginTime"/>
+        <result column="valid_end_time" property="validEndTime"/>
+        <result column="receive_type" property="receiveType"/>
+        <result column="user_day_count" property="userDayCount"/>
+        <result column="user_all_count" property="userAllCount"/>
+        <result column="coupon_type" property="couponType"/>
+        <result column="price" property="price"/>
+        <result column="gift_name" property="giftName"/>
+        <result column="level" property="level"/>
+        <result column="broken_count" property="brokenCount"/>
+        <result column="valid_time_type" property="validTimeType"/>
+        <result column="valid_hour" property="validHour"/>
+        <result column="begin_time" property="beginTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="issue_count" property="issueCount"/>
+        <result column="used_count" property="usedCount"/>
+        <result column="weight" property="weight"/>
+        <result column="use_rules" property="useRules"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="consumer_limit_type" property="consumerLimitType"/>
+        <result column="consumer_count" property="consumerCount"/>
+        <result column="status" property="status"/>
+        <result column="is_delete" property="isDelete"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name ,status,valid_begin_time AS validBeginTime, used_count as usedCount,valid_end_time AS validEndTime, receive_type AS receiveType, user_day_count AS userDayCount, user_all_count AS userAllCount, coupon_type AS couponType, price, gift_name AS giftName, level, broken_count AS brokenCount, valid_time_type AS validTimeType, valid_hour AS validHour, begin_time AS beginTime, end_time AS endTime, issue_count AS issueCount, weight, use_rules AS useRules, create_time AS createTime, update_time AS updateTime, consumer_limit_type AS consumerLimitType, consumer_count AS consumerCount, is_delete as isDelete
+    </sql>
+
+    <!-- 根据id查询 -->
+    <select id="selectById" parameterType="java.lang.Long" resultType="com.yhh.hbao.orm.model.Campaign">
+        SELECT
+          id                  AS id,
+          `name`,
+        valid_begin_time    AS validBeginTime,
+        valid_end_time      AS validEndTime,
+        gift_name           AS giftName,
+        receive_type        AS receiveType,
+        user_day_count      AS userDayCount,
+        user_all_count      AS userAllCount,
+        coupon_type         AS couponType,
+          price,
+          `level`,
+        broken_count        AS brokenCount,
+        valid_time_type     AS validTimeType,
+        valid_hour          AS validHour,
+        begin_time          AS beginTime,
+        end_time            AS endTime,
+        issue_count         AS issueCount,
+        used_count          AS usedCount,
+          weight,
+        use_rules           AS useRules,
+        create_time         AS createTime,
+        update_time         AS updateTime,
+        consumer_limit_type AS consumerLimitType,
+        consumer_count      AS consumerCount,
+          `status`,
+        is_delete           AS isDelete
+        FROM campaign
+        <if test=" null != value">
+            WHERE id = ${value} AND is_delete = 0
+        </if>
+    </select>
+
+    <!-- 新增使用量-->
+    <update id="updateUsedCount">
+        update campaign set used_count=(used_count+1) where id=#{campaignId}
+    </update>
+
+    <!--查询等级最低权重的活动-->
+    <select id="selectMinWeightCampaign" resultType="com.yhh.hbao.orm.model.Campaign">
+        select
+            <include refid="Base_Column_List"/>
+        from campaign t where t.level=#{level} and t.status=#{status} and t.coupon_type=#{couponType} AND t.is_delete = 0
+        order by weight desc limit 1
+    </select>
+
+    <!--获取 正在进行中的代金券 每一个等级 权重最高的-->
+    <select id="selectListByPrice" resultType="com.yhh.hbao.api.transfer.CampaignDto">
+
+
+        select
+         t.name,t.begin_time as beginTime,t.end_time as endTime,t.valid_hour as validHour,t.price,t.level,used_count as usedCount, max(t.weight) as weight
+         from campaign t  where t.coupon_type=#{couponType} and  t.status=#{status}
+        <if test="consumerLimitType != null">
+            consumer_limit_type=#{consumerLimitType}
+        </if>
+         <if test="ids!=null">
+             <foreach collection="ids" item="item" open=" and id not in (" close=")" separator=",">
+                 #{item}
+             </foreach>
+         </if>
+
+           group by t.level,t.name
+
+    </select>
+
+    <select id="selectAllLevel" resultType="java.lang.Integer">
+        select
+        t.level
+        from campaign t  where t.coupon_type=#{couponType} and  t.status=#{status} AND t.is_delete = 0
+        <if test="consumerLimitType != null">
+            and consumer_limit_type=#{consumerLimitType}
+        </if>
+
+        group by t.level
+    </select>
+    <select id="selectHignByLevel" resultType="com.yhh.hbao.api.transfer.CampaignDto">
+
+        select
+            id, name ,status,valid_begin_time AS validBeginTime, used_count as usedCount,
+            valid_end_time AS validEndTime, receive_type AS receiveType, user_day_count AS userDayCount,
+            user_all_count AS userAllCount, coupon_type AS couponType, price, gift_name AS giftName, level,
+            broken_count AS brokenCount, valid_time_type AS validTimeType, valid_hour AS validHour,
+            begin_time AS beginTime, end_time AS endTime, issue_count AS issueCount, use_rules AS useRules,
+            create_time AS createTime, update_time AS updateTime, consumer_limit_type AS consumerLimitType,
+            consumer_count AS consumerCount
+        from campaign t  where t.coupon_type=#{couponType} and  t.status=#{status} and t.level = #{level} AND t.is_delete = 0
+        <if test="consumerLimitType != null">
+            and consumer_limit_type=#{consumerLimitType}
+        </if>
+        <if test="notInIds != null">
+            and t.id not in
+            <foreach collection="notInIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        order by t.weight desc limit 1
+
+    </select>
+
+    <!--更新过期活动的状态-->
+    <update id="updateCampaignStatusComplete" parameterType="java.util.List">
+        update campaign set status = 2 where 1 = 1 and id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+          #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

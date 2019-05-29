@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhh.hbao.orm.mapper.CouponInfoMapper">
+
+        <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.yhh.hbao.orm.model.CouponInfo">
+        <id column="id" property="id"/>
+        <result column="campaign_id" property="campaignId"/>
+        <result column="coupon_code" property="couponCode"/>
+        <result column="invalid_time" property="invalidTime"/>
+        <result column="get_time" property="getTime"/>
+        <result column="source" property="source"/>
+        <result column="status" property="status"/>
+        <result column="is_verification" property="isVerification"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, campaign_id AS campaignId, coupon_code AS couponCode, invalid_time AS invalidTime, get_time AS getTime, source, status, is_verification AS isVerification, create_time AS createTime, update_time AS updateTime
+    </sql>
+
+
+    <!-- 更新用户优惠券的状态为 4:已使用 -->
+    <update id="updateCouponStatusUsed" parameterType="java.util.List">
+        UPDATE coupon_info
+          SET status = 4
+        WHERE coupon_code IN
+        <foreach collection="list" item="item"  open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="selectCouponCodeById" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT
+          coupon_code
+        FROM
+        coupon_info t1
+        where t1.id = #{id}
+    </select>
+</mapper>
