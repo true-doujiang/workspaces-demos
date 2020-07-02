@@ -41,7 +41,7 @@
         <mybatis-boot-starter-version>1.3.1</mybatis-boot-starter-version>
 
         <!-- mysql -->
-        <mysql-connector.version>8.0.11</mysql-connector.version>
+        <mysql-connector.version>8.0.16</mysql-connector.version>
 
         <!-- ehcache -->
         <ehcache.version>2.10.2</ehcache.version>
