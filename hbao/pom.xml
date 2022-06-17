@@ -47,7 +47,7 @@
         <ehcache.version>2.10.2</ehcache.version>
 
         <!-- FastJson -->
-        <fastjson.version>1.2.26</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
 
         <!-- slf4j -->
         <slf4j-log4j12.version>1.7.12</slf4j-log4j12.version>
